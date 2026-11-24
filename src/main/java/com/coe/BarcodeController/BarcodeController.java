@@ -11,41 +11,46 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/api/barcode")
 public class BarcodeController {
 
-	private final BarcodeService barcodeService;
+    private final BarcodeService barcodeService;
 
-	public BarcodeController(BarcodeService barcodeService) {
-		this.barcodeService = barcodeService;
-	}
+    public BarcodeController(BarcodeService barcodeService) {
+        this.barcodeService = barcodeService;
+    }
 
-	@PostMapping(value = "/generate", produces = MediaType.IMAGE_PNG_VALUE)
-	public ResponseEntity<byte[]> generateBarcode(@RequestBody BarcodeRequest request) throws Exception {
+    @PostMapping(value = "/api/barcode/generate", produces = MediaType.IMAGE_PNG_VALUE)
+    @ResponseBody
+    public ResponseEntity<byte[]> generateBarcode(@RequestBody BarcodeRequest request) throws Exception {
 
-		GeneratedBarcode generated = barcodeService.generateBarcode(request.getProductName(), request.getPrice1(),
-				request.getPrice2());
+        GeneratedBarcode generated = barcodeService.generateBarcode(
+                request.getProductName(),
+                request.getPrice1(),
+                request.getPrice2()
+        );
 
-		return ResponseEntity.ok().header("X-Barcode-ID", generated.getBarcodeId())
-				.header("X-Generated-At", generated.getGeneratedAt()).contentType(MediaType.IMAGE_PNG)
-				.body(generated.getImage());
-	}
+        return ResponseEntity.ok()
+                .header("X-Barcode-ID", generated.getBarcodeId())
+                .header("X-Generated-At", generated.getGeneratedAt())
+                .contentType(MediaType.IMAGE_PNG)
+                .body(generated.getImage());
+    }
 
-	@PostMapping("/save")
-	public ResponseEntity<Product> saveProduct(@RequestBody ProductSaveRequest request) {
+    @PostMapping("/api/barcode/save")
+    @ResponseBody
+    public ResponseEntity<Product> saveProduct(@RequestBody ProductSaveRequest request) {
 
-		Product savedProduct = barcodeService.saveProduct(request);
+        Product savedProduct = barcodeService.saveProduct(request);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct);
+    }
 
-	}
+    @GetMapping("/")
+    public String index() {
+        return "index";
+    }
 
-	@GetMapping("/")
-	public String index() {
-		return "index";
-	}
-
-	@GetMapping("/print-sheet")
+    @GetMapping("/print-sheet")
     public String printSheet() {
         return "print-sheet";
     }

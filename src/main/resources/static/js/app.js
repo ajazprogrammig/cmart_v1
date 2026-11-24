@@ -123,7 +123,7 @@ function renderProducts() {
     });
 }
 
-// Open A4 Print Sheet in a new tab
+// Open A4 Print Sheet in a new tab with all QR codes & optional multiple copies
 document.getElementById("printBtn")
 .addEventListener("click", function () {
 
@@ -132,13 +132,116 @@ document.getElementById("printBtn")
         return;
     }
 
-    // Use localStorage so the new tab reliably receives all products
-    localStorage.setItem(
-        "printProducts",
-        JSON.stringify(generatedProducts)
+    const copiesInput = prompt(
+        "Har QR code ki kitni copies A4 sheet par chahiye?",
+        "1"
     );
 
-    window.open("/print-sheet", "_blank");
+    if (copiesInput === null) {
+        return;
+    }
+
+    const copies = Math.max(1, parseInt(copiesInput, 10) || 1);
+
+    const expandedProducts = [];
+    generatedProducts.forEach(product => {
+        for (let i = 0; i < copies; i++) {
+            expandedProducts.push(product);
+        }
+    });
+
+    const cardsHtml = expandedProducts.map(product => `
+        <div class="print-card">
+            <img src="data:image/png;base64,${product.qrImageBase64}" alt="${escapeHtml(product.productName)}">
+            <h4>${escapeHtml(product.productName)}</h4>
+            <p class="unique-code">${escapeHtml(product.qrCode)}</p>
+            <p>${escapeHtml(product.generatedAt)}</p>
+            <p>Price 1: ${product.price1}</p>
+            <p>Price 2: ${product.price2}</p>
+        </div>
+    `).join("");
+
+    const htmlDoc = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>A4 QR Print Sheet (${expandedProducts.length} Labels)</title>
+            <style>
+                @page { size: A4 portrait; margin: 10mm; }
+                * { box-sizing: border-box; }
+                body { font-family: Arial, sans-serif; background: #f3f5f9; margin: 0; padding: 15px; }
+                .toolbar {
+                    max-width: 190mm;
+                    margin: 0 auto 12px auto;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    background: #fff;
+                    padding: 10px 15px;
+                    border-radius: 6px;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+                }
+                .toolbar button {
+                    padding: 8px 16px;
+                    background: #1769e0;
+                    color: #fff;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 14px;
+                }
+                .sheet {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 8mm 5mm;
+                    width: 190mm;
+                    margin: 0 auto;
+                    background: #fff;
+                    padding: 8mm;
+                }
+                .print-card {
+                    border: 1px solid #999;
+                    padding: 4mm;
+                    text-align: center;
+                    break-inside: avoid;
+                    page-break-inside: avoid;
+                }
+                .print-card img {
+                    width: 35mm;
+                    height: 35mm;
+                    object-fit: contain;
+                    display: block;
+                    margin: 0 auto 4px auto;
+                }
+                .print-card h4 { font-size: 10pt; margin: 3px 0; overflow-wrap: anywhere; }
+                .print-card p { font-size: 8pt; margin: 2px 0; overflow-wrap: anywhere; }
+                .print-card .unique-code { font-weight: bold; }
+                @media print {
+                    body { background: #fff; padding: 0; margin: 0; }
+                    .toolbar { display: none !important; }
+                    .sheet { padding: 0; width: 190mm; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="toolbar">
+                <span><strong>Total QR Labels:</strong> ${expandedProducts.length}</span>
+                <button onclick="window.print()">Print A4 Sheet</button>
+            </div>
+            <div class="sheet">${cardsHtml}</div>
+            <script>
+                window.onload = function () {
+                    setTimeout(() => window.print(), 300);
+                };
+            <\/script>
+        </body>
+        </html>
+    `;
+
+    const blob = new Blob([htmlDoc], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
 });
 
 // Save all unsaved products to MySQL
@@ -221,3 +324,13 @@ document.getElementById("downloadBtn")
     link.download = product.qrCode + ".png";
     link.click();
 });
+
+// Escape HTML special characters
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
