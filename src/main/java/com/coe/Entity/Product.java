@@ -7,7 +7,11 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "product")
 public class Product {
+
 int a = 10;
+
+String s = "20";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
