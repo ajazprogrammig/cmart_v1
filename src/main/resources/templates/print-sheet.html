@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>A4 QR Print Sheet</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f5f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .toolbar {
+            max-width: 190mm;
+            margin: 0 auto 15px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .toolbar button {
+            padding: 10px 18px;
+            background: #1769e0;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .sheet {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8mm 5mm;
+            width: 190mm;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 8mm;
+        }
+
+        .print-card {
+            border: 1px solid #999;
+            padding: 4mm;
+            text-align: center;
+            break-inside: avoid;
+            page-break-inside: avoid;
+            min-width: 0;
+        }
+
+        .print-card img {
+            width: 35mm;
+            height: 35mm;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto 4px auto;
+        }
+
+        .print-card h4 {
+            font-size: 10pt;
+            margin: 3px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .print-card p {
+            font-size: 8pt;
+            margin: 2px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .print-card .unique-code {
+            font-size: 8pt;
+            font-weight: bold;
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+                margin: 0;
+            }
+
+            .toolbar {
+                display: none !important;
+            }
+
+            .sheet {
+                padding: 0;
+                width: 190mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="toolbar">
+    <span id="sheetCount"><strong>Total QR Labels:</strong> 0</span>
+    <button type="button" onclick="window.print()">Print A4 Sheet</button>
+</div>
+
+<div id="printArea" class="sheet"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        const raw = localStorage.getItem("printProducts");
+        const products = raw ? JSON.parse(raw) : [];
+
+        document.getElementById("sheetCount").innerHTML =
+            "<strong>Total QR Labels:</strong> " + products.length;
+
+        const printArea = document.getElementById("printArea");
+
+        if (products.length === 0) {
+            printArea.innerHTML = "<p>No QR codes found to print. Please generate QR codes first.</p>";
+            return;
+        }
+
+        products.forEach(product => {
+            const card = document.createElement("div");
+            card.className = "print-card";
+
+            const image = document.createElement("img");
+            image.src = "data:image/png;base64," + product.qrImageBase64;
+            image.alt = product.productName;
+
+            const name = document.createElement("h4");
+            name.textContent = product.productName;
+
+            const code = document.createElement("p");
+            code.className = "unique-code";
+            code.textContent = product.qrCode;
+
+            const date = document.createElement("p");
+            date.textContent = product.generatedAt;
+
+            const price1 = document.createElement("p");
+            price1.textContent = "Price 1: " + product.price1;
+
+            const price2 = document.createElement("p");
+            price2.textContent = "Price 2: " + product.price2;
+
+            card.append(image, name, code, date, price1, price2);
+            printArea.appendChild(card);
+        });
+
+        // Wait for all Base64 QR images to decode before triggering print
+        const images = Array.from(printArea.querySelectorAll("img"));
+        await Promise.all(
+            images.map(img => img.complete
+                ? Promise.resolve()
+                : new Promise(resolve => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                })
+            )
+        );
+
+        window.print();
+    });
+</script>
+
+</body>
+</html>

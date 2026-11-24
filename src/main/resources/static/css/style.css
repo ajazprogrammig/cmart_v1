@@ -1,0 +1,170 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f5f9;
+    margin: 0;
+    padding: 40px 15px;
+}
+
+.container {
+    max-width: 420px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px #ddd;
+}
+
+h2, h3 {
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin-top: 7px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: #1769e0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#result {
+    margin-top: 25px;
+    text-align: center;
+}
+
+#barcodeImage {
+    display: block;
+    max-width: 200px;
+    width: 100%;
+    height: auto;
+    margin: 15px auto;
+}
+
+#barcodeId {
+    font-weight: bold;
+    word-break: break-all;
+}
+
+#message {
+    text-align: center;
+}
+
+.barcode-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.barcode-card {
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    background: white;
+    min-width: 0;
+}
+
+.barcode-card img {
+    width: 140px;
+    max-width: 100%;
+    height: auto;
+}
+
+.barcode-card p {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.saved-status {
+    color: green;
+    font-weight: bold;
+}
+
+.action-buttons {
+    display: grid;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#printArea {
+    display: none;
+}
+
+/* A4 printing */
+
+@page {
+    size: A4 portrait;
+    margin: 10mm;
+}
+
+@media print {
+
+    body {
+        background: white;
+        padding: 0;
+        margin: 0;
+    }
+
+    .container {
+        display: none !important;
+    }
+
+    #printArea {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8mm 5mm;
+        width: 190mm;
+        margin: 0 auto;
+    }
+
+    .print-card {
+        border: 1px solid #999;
+        padding: 4mm;
+        text-align: center;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        min-width: 0;
+    }
+
+    .print-card img {
+        width: 35mm;
+        height: 35mm;
+        object-fit: contain;
+    }
+
+    .print-card h4 {
+        font-size: 10pt;
+        margin: 3px 0;
+        overflow-wrap: anywhere;
+    }
+
+    .print-card p {
+        font-size: 8pt;
+        margin: 3px 0;
+        overflow-wrap: anywhere;
+    }
+
+    .print-card .unique-code {
+        font-size: 8pt;
+        font-weight: bold;
+    }
+}
+

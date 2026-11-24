@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Product Barcode Generator</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+    <h2>Product Barcode Generator</h2>
+
+    <form id="barcodeForm">
+		<p id="message"></p>
+        <label>Product Name</label>
+        <input type="text" id="productName"
+               placeholder="Enter product name" required>
+
+        <label>Price 1</label>
+        <input type="number" id="price1"
+               step="0.01" min="0" required>
+
+        <label>Price 2</label>
+        <input type="number" id="price2"
+               step="0.01" min="0" required>
+
+        <button type="submit" id="generateBtn">Generate Barcode</button>
+    </form>
+
+	<div id="result" style="display:none">
+
+	    <h3>Generated Products</h3>
+
+	    <p id="productCount">Total: 0</p>
+
+	    <div id="barcodeList" class="barcode-list"></div>
+
+	    <div class="action-buttons">
+
+	        <button type="button" id="downloadBtn">
+	            Download Latest
+	        </button>
+
+	        <button type="button" id="printBtn">
+	            Print A4 Sheet
+	        </button>
+
+	        <button type="button" id="saveBtn">
+	            Save to Database
+	        </button>
+
+	    </div>
+
+	    <p id="saveMessage"></p>
+
+	</div>
+
+	<!-- Dedicated print area -->
+	<div id="printArea"></div>
+
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
