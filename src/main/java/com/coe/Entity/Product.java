@@ -8,10 +8,13 @@ import java.time.LocalDateTime;
 @Table(name = "product")
 public class Product {
 
+<<<<<<< HEAD
 int a = 10;
 
 String s = "20";
 
+=======
+>>>>>>> parent of 2f36c67 (mofs)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
